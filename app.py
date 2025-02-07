@@ -11,7 +11,7 @@ class Scrapping:
     def __init__(self, data):
         self.base_url = "https://online.immi.gov.au"
         options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')  # Uncomment for headless browsing
+        options.add_argument('--headless')  # Uncomment for headless browsing
         options.add_argument('--disable-gpu')
         options.add_argument('--incognito')
         self.driver = webdriver.Chrome(options=options)
