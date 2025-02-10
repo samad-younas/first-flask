@@ -26,11 +26,10 @@ class Scrapping:
         images = WebDriverWait(self.driver, 10).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'img'))
         )
-
         image_urls = []
         for image in images:
             src = image.get_attribute('src')  # Get the image source URL
-            if src:
+            if src and not src.startswith("data:image"):  # Exclude base64 images
                 image_urls.append(src)
 
         # Close the browser
