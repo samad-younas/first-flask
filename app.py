@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -9,34 +9,59 @@ import time
 
 class Scrapping:
     def __init__(self, data):
-        self.base_url = "https://online.immi.gov.au"
+        # self.base_url = "https://online.immi.gov.au"
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')  # Uncomment for headless browsing
+        # options.add_argument('--headless')  # Uncomment for headless browsing
         options.add_argument('--disable-gpu')
         options.add_argument('--incognito')
         self.driver = webdriver.Chrome(options=options)
         self.data = data
 
     def visaHolderEnquiryForm(self):
-        form_url = self.data.get('video_url')
-        self.driver.get(form_url)
-        time.sleep(3)  # Let the page load
+        try:
+            form_url = self.data.get('video_url')
+            self.driver.get(form_url)
 
-        # Find all images on the page
-        images = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_all_elements_located((By.TAG_NAME, 'img'))
-        )
+            # Wait for the page to load
+            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
 
-        image_urls = []
-        for image in images:
-            src = image.get_attribute('src')  # Get the image source URL
-            if src:
-                image_urls.append(src)
+            # Fetch price
+            try:
+                price_element = WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, '.index-price--hHzq8 span'))
+                )
+                price = price_element.text if price_element else None
+            except:
+                price = None  # If price element is not found
 
-        # Close the browser
-        self.driver.quit()
+            # Fetch description
+            try:
+                description_element = WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, '.index-text--cRhk2'))
+                )
+                description = description_element.text if description_element else None
+            except:
+                description = None  # If description element is not found
 
-        return image_urls
+            # Find all images on the page
+            try:
+                images = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_all_elements_located((By.TAG_NAME, 'img'))
+                )
+                image_urls = [
+                    img.get_attribute('src') for img in images if img.get_attribute('src') and not img.get_attribute('src').startswith("data:image")
+                ]
+            except:
+                image_urls = []
+            result = {
+                "price": price,
+                "description": description,
+                "image_urls": image_urls
+            }
+            return result
+
+        finally:
+            self.driver.quit()  # Ensure the browser is always closed
 
 
 app = Flask(__name__)
