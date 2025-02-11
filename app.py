@@ -37,7 +37,7 @@ class Scrapping:
             # Fetch description
             try:
                 description_element = WebDriverWait(self.driver, 5).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, '.index-text--cRhk2'))
+                    EC.presence_of_element_located((By.CSS_SELECTOR, '.index-title--AnTxK'))
                 )
                 description = description_element.text if description_element else None
             except:
