@@ -46,10 +46,11 @@ class Scrapping:
             # Find all images on the page
             try:
                 images = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_all_elements_located((By.TAG_NAME, 'img'))
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.slick-track img'))
                 )
                 image_urls = [
-                    img.get_attribute('src') for img in images if img.get_attribute('src') and not img.get_attribute('src').startswith("data:image")
+                    img.get_attribute('src') for img in images 
+                    if img.get_attribute('src') and not img.get_attribute('src').startswith("data:image")
                 ]
             except:
                 image_urls = []
